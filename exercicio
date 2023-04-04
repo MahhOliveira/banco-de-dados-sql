@@ -1,0 +1,12 @@
+mysql> CREATE TABLE PESSOA (
+cpf char (11) not null,
+nome char(40),
+telefone1 char (15),
+telefone2 char (15),
+email char (30),
+data_nascimento date,
+endereco char (50),
+bairro int unsigned ,
+cidade int usigned,
+uf char (2),
+cep char (8)
