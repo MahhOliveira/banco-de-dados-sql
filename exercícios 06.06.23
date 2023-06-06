@@ -1,0 +1,33 @@
+SELECT *
+FROM sakila.customer
+WHERE FIRST_NAME LIKE 'M%'
+AND customer_id IN
+(SELECT customer_id
+FROM sakila.customer
+WHERE LAST_NAME LIKE 'M%');
+
+ELECT film_id
+FROM sakila.film
+WHERE length > 180 
+union
+SELECT film_id as id
+FROM sakila.film_actor
+group by film_id
+having count (*) > 10
+order by 1;
+
+SELECT film_id
+from sakila.film
+where film_id
+(SELECT film_id
+FROM sakila.inventory
+group by film_id
+having count(*) >5)
+and film_id as id 
+SELECT *
+FROM sakila.customer A 
+WHERE FIRST_NAME LIKE 'M%'
+EXCEPT
+SELECT *
+FROM  sakila.customer
+WHERE LAST_NAME LIKE 'M%';
