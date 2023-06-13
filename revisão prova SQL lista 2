@@ -1,0 +1,61 @@
+Lista 2:
+1. Selecionar o primeiro e último nome de todos os clientes e de todos os
+empregados, ordenado alfabeticamente pelo primeiro e último nome.
+(select first_name, last_name from staff)
+union all
+(select first_name, last_name from customer)
+order by first_name asc, last_name asc;
+O union all ao contrário do union, permite a existência de tuplos iguais.
+2. Selecionar os títulos dos filmes com maior duração, ordenado
+alfabeticamente pelo título.
+select title from film
+where length = (select max(length) from film);
+3. Selecionar o título dos filmes que nunca foram alugados pelo cliente 'LEE
+HAWKS' mas que já foram alugados por outros clientes, ordenado
+alfabeticamente pelo título.
+SELECT title FROM film
+WHERE film_id IN
+(SELECT film_id FROM inventory WHERE inventory_id IN
+(SELECT inventory_id FROM rental))
+AND film_id NOT IN
+(SELECT film_id from inventory WHERE inventory_id IN
+(SELECT inventory_id FROM rental WHERE customer_id IN
+(SELECT customer_id FROM customer WHERE first_name = "LEE" AND
+last_name = "HAWKS")));
+by: @yat0 e @boilnkettle
+4. Selecionar o título dos filmes em que não participa nenhum ator,
+ordenado alfabeticamente pelo título.
+select title from film where film_id not in
+(select film_id from film_actor) order by title;
+5. Selecionar o título dos filmes, com existência de DVDs, que nunca foram
+alugados, ordenado alfabeticamente pelo título.
+select title from film natural join inventory where inventory_id not in (
+select inventory_id from rental) order by title;
+ou da seguinte forma mais explicita:
+select title from film where film_id in (
+select film_id from inventory where inventory_id not in (
+select inventory_id from rental)) order by title;
+6. Selecionar o primeiro e último nome dos clientes que alugaram filmes de
+todas as categorias, com existência de DVDs, ordenado alfabeticamente
+pelo primeiro e último nome.
+select first_name, last_name from customer
+where customer_id in
+(select customer_id from rental natural join inventory natural join film
+group by customer_id
+having count(distinct category_id) = (
+select count(distinct category_id) from film))
+order by 1,2;
+7. Selecionar o primeiro e último nome dos atores que já participaram em
+filmes de todas as categorias, com existência de filmes, ordenado
+alfabeticamente pelo primeiro e último nome.
+select first_name, last_name from film natural join film_actor natural join
+actor
+group by actor_id having count(distinct category_id) = (select count(distinct
+category_id) from film) order by 1,2;
+ou
+select first_name, last_name from actor
+where actor_id in
+(select actor_id from film_actor natural join film group by actor_id
+having count(distinct category_id) = (select count(distinct category_id) from
+film))
+order by 1,2;
