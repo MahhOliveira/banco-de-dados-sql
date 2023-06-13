@@ -1,0 +1,71 @@
+Lista 4:
+1. Selecionar o título dos filmes da categoria 'Sports', ordenado
+alfabeticamente pelo título.
+select title from film natural join category
+where name = 'Sports' order by 1 asc;
+2. Selecionar o primeiro e último nome dos atores que participam no filme
+'WYOMING STORM', ordenado alfabeticamente pelo primeiro e último
+nome.
+select first_name, last_name from actor natural join film_actor natural join
+film
+where title='WYOMING STORM' order by 1, 2;
+3. Selecionar o primeiro e último nome dos atores que participam em
+filmes da categoria 'Drama', ordenado alfabeticamente pelo primeiro e
+último nome.
+select first_name, last_name from (
+select distinct actor_id ,first_name, last_name
+from actor natural join film_actor natural join film natural join
+category
+where name = 'drama'
+) as tmp order by 1, 2;
+4. Selecionar o título dos filmes que apenas podem ser alugados na loja
+número 1, ordenado alfabeticamente pelo título.
+select distinct title from film natural join inventory
+where store_id = 1 and film_id not in (
+select film_id from film natural join inventory
+where store_id <> 1
+)order by 1 asc;
+5. Selecionar o primeiro e último nome dos atores que já contracenaram
+com a actriz 'JULIA ZELLWEGER', ordenado alfabeticamente pelo primeiro
+e último nome.
+select distinct first_name, last_name from actor natural join film_actor
+where !(first_name='JULIA' and last_name='ZELLWEGER') and film_id in (
+select film_id from actor natural join film_actor
+where first_name='JULIA' and last_name='ZELLWEGER'
+) order by 1, 2;
+6. Selecionar o número total de atores diferentes que entraram em filmes
+da categoria 'Action'.
+select count(*) from (select distinct actor_id from film_actor natural join
+film natural join category
+where name = 'Action') as tmp;
+7. Selecionar o primeiro e último nome dos clientes que já alugaram filmes
+em lojas situadas no mesmo país onde moram, ordenado
+alfabeticamente pelo primeiro e último nome.
+select distinct first_name, last_name from inventory natural join rental
+natural join customer, store
+where store.country = customer.country order by 1 asc, 2 asc;
+8. Selecionar, por categoria, o nome da categoria e a média da duração dos
+filmes dessa categoria, ordenado alfabeticamente pelo nome.
+select name, avg(length) from (select name, length from film natural join
+category
+union ALL
+select name , 0 from category where category_id not in (select category_id
+from category natural join film)
+) as tmp group by name order by 1 asc;
+9. Selecionar o nome das categorias para as quais existem mais filmes,
+ordenado alfabeticamente pelo nome.
+select name from category
+where category_id in (select category_id from film natural join category
+group by category_id having count(film_id) = (select max(maxi) from (
+select count(film_id) as maxi
+from category natural join film group by category_id) as tmp1));
+10. Selecionar o primeiro e último nome dos clientes cujos alugueres de
+filmes totalizam a maior duração em minutos, ordenado alfabeticamente
+pelo primeiro e último nome.
+select first_name, last_name from customer
+where customer_id in (select customer_id from film natural join inventory
+natural join rental natural left join customer
+group by customer_id having sum(length) = (select max(duracao) from
+(select sum(length) as duracao
+from film natural join inventory natural join rental natural left join
+customer group by customer_id) as tmp1)) order by 1, 2;
